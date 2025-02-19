@@ -4,7 +4,31 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>[Muonroi][C#] Telegram sender</Title>
+    <PackageTags>telegram bot, telegram extension</PackageTags>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Copyright>MuonRoi</Copyright>
+    <PackageProjectUrl>https://github.com/muonroi/MuonRoi.SenderTelegram</PackageProjectUrl>
+    <PackageReleaseNotes>MuonRoi.SenderTelegram .NET Extension** is an open-source library for .NET developers that simplifies the process of sending messages and media to Telegram using a Telegram Bot. It abstracts the complexity of interacting with the Telegram Bot API by providing built-in features
+</PackageReleaseNotes>
+     <PackAsTool>False</PackAsTool>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0</FileVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\MuonroiBuildingBlock\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\MuonroiBuildingBlock\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.72" />

@@ -1,28 +1,42 @@
-﻿namespace MuonRoi.SenderTelegram;
-
-public static class TelegramServiceCollectionExtensions
+﻿namespace MuonRoi.SenderTelegram
 {
-    public static IServiceCollection AddTelegramSender(this IServiceCollection services, IConfiguration configuration)
+    public static class TelegramServiceCollectionExtensions
     {
-        services.Configure<TelegramOptions>(configuration.GetSection("Telegram"));
-        services.AddSingleton<ITelegramSender>(provider =>
+        public static IServiceCollection AddTelegramSender(this IServiceCollection services, IConfiguration configuration)
         {
-            ILogger<TelegramSender> logger = provider.GetRequiredService<ILogger<TelegramSender>>();
-            ITelegramBotClientWrapper botClientWrapper = provider.GetRequiredService<ITelegramBotClientWrapper>();
-            IOptions<TelegramOptions> options = provider.GetRequiredService<IOptions<TelegramOptions>>();
-            IRetryPolicyProvider retryPolicyProvider = provider.GetRequiredService<IRetryPolicyProvider>();
-            IMessageSplitter messageSplitter = provider.GetRequiredService<IMessageSplitter>();
-            IHtmlMessageProcessor htmlMessageProcessor = provider.GetRequiredService<IHtmlMessageProcessor>();
+            _ = services.Configure<TelegramOptions>(configuration.GetSection("Telegram"));
 
-            return new TelegramSender(
-                botClientWrapper,
-                options,
-                retryPolicyProvider,
-                logger,
-                messageSplitter,
-                htmlMessageProcessor);
-        });
+            _ = services.AddSingleton(provider =>
+            {
+                string? token = configuration["Telegram:BotToken"];
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    throw new InvalidOperationException("Missing BotToken configuration in appsettings.json");
+                }
+                return new TelegramBotClient(token);
+            });
 
-        return services;
+            _ = services.AddSingleton<ITelegramBotClientWrapper, TelegramBotClientWrapper>();
+
+            _ = services.AddSingleton<ITelegramSender>(provider =>
+            {
+                ILogger<TelegramSender> logger = provider.GetRequiredService<ILogger<TelegramSender>>();
+                ITelegramBotClientWrapper botClientWrapper = provider.GetRequiredService<ITelegramBotClientWrapper>();
+                IOptions<TelegramOptions> options = provider.GetRequiredService<IOptions<TelegramOptions>>();
+                IRetryPolicyProvider retryPolicyProvider = provider.GetRequiredService<IRetryPolicyProvider>();
+                IMessageSplitter messageSplitter = provider.GetRequiredService<IMessageSplitter>();
+                IHtmlMessageProcessor htmlMessageProcessor = provider.GetRequiredService<IHtmlMessageProcessor>();
+
+                return new TelegramSender(
+                    botClientWrapper,
+                    options,
+                    retryPolicyProvider,
+                    logger,
+                    messageSplitter,
+                    htmlMessageProcessor);
+            });
+
+            return services;
+        }
     }
 }

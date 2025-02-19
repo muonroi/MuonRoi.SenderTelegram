@@ -6,4 +6,5 @@ public class TelegramOptions
     public Dictionary<string, string> Formats { get; set; } = [];
     public int MaxMessageLength { get; set; } = 4096;
     public int MaxRetryAttempts { get; set; } = 3;
+    public string Token { get; set; } = string.Empty;
 }
