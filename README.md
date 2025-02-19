@@ -31,13 +31,13 @@ TelegramSender is an open-source .NET extension that provides services for sendi
 
 Install the package via NuGet Package Manager:
 
-```bash
 dotnet add package MuonRoi.SenderTelegram
 
 # Configuration
 
 TelegramSender uses a Telegram section in your appsettings.json for configuration. Below is an example configuration:
 
+```bash
 {
   "Telegram": {
     "ChannelId": "your_default_channel_id",
@@ -49,16 +49,18 @@ TelegramSender uses a Telegram section in your appsettings.json for configuratio
     "MaxMessageLength": 4096
   }
 }
+```
 
-- **ChannelId: The default channel for sending messages.
-- **ErrorChannelId: The channel for sending error notifications.
-- **Formats: Message templates for different formatting types (e.g., default, error).
-- **MaxMessageLength: The maximum allowed message length. Messages longer than this will be automatically split.
+- **ChannelId**: The default channel for sending messages.
+- **ErrorChannelId**: The channel for sending error notifications.
+- **Formats**: Message templates for different formatting types (e.g., default, error).
+- **MaxMessageLength**: The maximum allowed message length. Messages longer than this will be automatically split.
 
 # Usage
 ## Registering the Service
 Register the TelegramSender service and its required dependencies in your DI container (e.g., in Startup.cs or Program.cs):
 
+```bash
 using MuonRoi.SenderTelegram;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,10 +79,12 @@ public class Startup
         services.AddTelegramSender(Configuration);
     }
 }
+```
 
 ## Injecting and Using ITelegramSender
 You can inject ITelegramSender into your classes (such as services or controllers) to send messages to Telegram:
 
+```bash
 public class NotificationService
 {
     private readonly ITelegramSender _telegramSender;
@@ -99,6 +103,7 @@ public class NotificationService
         }
     }
 }
+```
 
 ## Dependency Injection Details
 
@@ -108,7 +113,8 @@ The extension requires the following dependencies to be registered in your DI co
 - **IRetryPolicyProvider**
 - **IMessageSplitter**
 - **IHtmlMessageProcessor**
-- **Ensure these services are registered before adding the TelegramSender extension so that all required dependencies can be resolved.**
+
+Ensure these services are registered before adding the TelegramSender extension so that all required dependencies can be resolved.
 
 ## Contributing
 Contributions are welcome! To contribute to this project, please follow these steps:
