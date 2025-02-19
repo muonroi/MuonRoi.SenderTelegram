@@ -30,4 +30,16 @@ public class TelegramBotClientWrapper(TelegramBotClient client) : ITelegramBotCl
     {
         return client.SendMediaGroup(chatId, media.ToList(), cancellationToken: cancellationToken);
     }
+    public Task SetWebhookAsync(string url, CancellationToken cancellationToken)
+    {
+        return client.SetWebhook(url, cancellationToken: cancellationToken);
+    }
+    public void StartReceiving(
+    Func<ITelegramBotClient, Update, CancellationToken, Task> updateHandler,
+    Func<ITelegramBotClient, Exception, CancellationToken, Task> pollingErrorHandler,
+    ReceiverOptions receiverOptions,
+    CancellationToken cancellationToken)
+    {
+        client.StartReceiving(updateHandler, pollingErrorHandler, receiverOptions, cancellationToken);
+    }
 }

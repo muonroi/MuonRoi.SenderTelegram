@@ -49,7 +49,7 @@ public interface ITelegramSender
         ReplyMarkup? replyMarkup = null,
         CancellationToken cancellationToken = default);
 
-    void RegisterCallbackHandlers(string commandPrefix, Func<CallbackQuery, Task> handler);
+    void RegisterCallbackHandlers(string commandPrefix, Func<TelegramCallbackQuery, Task> handler);
 
-    Task HandleCallbackQueryAsync(CallbackQuery callbackQuery);
+    Task HandleCallbackQueryAsync(TelegramCallbackQuery callbackQuery);
 }

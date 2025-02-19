@@ -11,7 +11,7 @@ public partial class TelegramSender : ITelegramSender
     private readonly IHtmlMessageProcessor htmlMessageProcessor;
     private readonly ILogger<TelegramSender> logger;
     private readonly Dictionary<string, string> messageFormats;
-    private readonly Dictionary<string, Func<CallbackQuery, Task>> callbackHandlers = [];
+    private readonly Dictionary<string, Func<TelegramCallbackQuery, Task>> callbackHandlers = [];
     private readonly AsyncRetryPolicy retryPolicy;
     private readonly string channelId;
     private readonly string errorChannelId;
@@ -135,7 +135,7 @@ public partial class TelegramSender : ITelegramSender
     /// </summary>
     /// <param name="commandPrefix">The prefix of the callback data (e.g., "view_customer_").</param>
     /// <param name="handler">The function to handle the callback.</param>
-    public void RegisterCallbackHandlers(string commandPrefix, Func<CallbackQuery, Task> handler)
+    public void RegisterCallbackHandlers(string commandPrefix, Func<TelegramCallbackQuery, Task> handler)
     {
         if (callbackHandlers.ContainsKey(commandPrefix))
         {
@@ -150,11 +150,11 @@ public partial class TelegramSender : ITelegramSender
     /// Processes incoming callback queries and invokes the appropriate registered handler.
     /// </summary>
     /// <param name="callbackQuery">The callback query received from Telegram.</param>
-    public async Task HandleCallbackQueryAsync(CallbackQuery callbackQuery)
+    public async Task HandleCallbackQueryAsync(TelegramCallbackQuery callbackQuery)
     {
         if (callbackQuery.Data is null) return;
 
-        foreach (KeyValuePair<string, Func<CallbackQuery, Task>> entry in callbackHandlers)
+        foreach (KeyValuePair<string, Func<TelegramCallbackQuery, Task>> entry in callbackHandlers)
         {
             if (callbackQuery.Data.StartsWith(entry.Key))
             {
