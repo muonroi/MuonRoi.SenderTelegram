@@ -1,8 +1,12 @@
-﻿namespace MuonRoi.SenderTelegram
+﻿
+
+namespace MuonRoi.SenderTelegram
 {
     public static class TelegramServiceCollectionExtensions
     {
-        public static IServiceCollection AddTelegramSender(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddTelegramSender(this IServiceCollection services
+            , IConfiguration configuration
+            , Action<ITelegramSender>? registerCallbacks = null)
         {
             _ = services.Configure<TelegramOptions>(configuration.GetSection("Telegram"));
 
@@ -27,16 +31,21 @@
                 IMessageSplitter messageSplitter = provider.GetRequiredService<IMessageSplitter>();
                 IHtmlMessageProcessor htmlMessageProcessor = provider.GetRequiredService<IHtmlMessageProcessor>();
 
-                return new TelegramSender(
+                TelegramSender telegramSender = new(
                     botClientWrapper,
                     options,
                     retryPolicyProvider,
                     logger,
                     messageSplitter,
                     htmlMessageProcessor);
+
+                registerCallbacks?.Invoke(telegramSender);
+
+                return telegramSender;
             });
 
             return services;
         }
+
     }
 }

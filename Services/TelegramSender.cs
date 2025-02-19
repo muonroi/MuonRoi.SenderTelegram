@@ -11,10 +11,12 @@ public partial class TelegramSender : ITelegramSender
     private readonly IHtmlMessageProcessor htmlMessageProcessor;
     private readonly ILogger<TelegramSender> logger;
     private readonly Dictionary<string, string> messageFormats;
+    private readonly Dictionary<string, Func<CallbackQuery, Task>> callbackHandlers = [];
     private readonly AsyncRetryPolicy retryPolicy;
     private readonly string channelId;
     private readonly string errorChannelId;
     private readonly int maxMessageLength;
+
 
     /// <summary>
     /// Regular expression used to check if a message contains HTML.
@@ -126,6 +128,42 @@ public partial class TelegramSender : ITelegramSender
 
         logger.LogInformation("Successfully sent all message parts to channel: {ChatId}", validChatId);
         return true;
+    }
+
+    /// <summary>
+    /// Registers a callback handler for a specific command prefix.
+    /// </summary>
+    /// <param name="commandPrefix">The prefix of the callback data (e.g., "view_customer_").</param>
+    /// <param name="handler">The function to handle the callback.</param>
+    public void RegisterCallbackHandlers(string commandPrefix, Func<CallbackQuery, Task> handler)
+    {
+        if (callbackHandlers.ContainsKey(commandPrefix))
+        {
+            logger.LogWarning("Handler for {commandPrefix} is already registered. It will be overwritten.", commandPrefix);
+        }
+
+        callbackHandlers[commandPrefix] = handler;
+        logger.LogInformation("Registered callback handler for {commandPrefix}", commandPrefix);
+    }
+
+    /// <summary>
+    /// Processes incoming callback queries and invokes the appropriate registered handler.
+    /// </summary>
+    /// <param name="callbackQuery">The callback query received from Telegram.</param>
+    public async Task HandleCallbackQueryAsync(CallbackQuery callbackQuery)
+    {
+        if (callbackQuery.Data is null) return;
+
+        foreach (KeyValuePair<string, Func<CallbackQuery, Task>> entry in callbackHandlers)
+        {
+            if (callbackQuery.Data.StartsWith(entry.Key))
+            {
+                await entry.Value(callbackQuery);
+                return;
+            }
+        }
+
+        logger.LogWarning("No handler registered for callback data: {callbackQuery.Data}", callbackQuery.Data);
     }
 
     /// <summary>
