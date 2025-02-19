@@ -69,17 +69,18 @@ using Microsoft.Extensions.DependencyInjection;
 
 public class Startup
 {
-    public void ConfigureServices(IServiceCollection services)
-    {
-        // Register required dependencies
-        services.AddSingleton<ITelegramBotClientWrapper, TelegramBotClientWrapper>();
-        services.AddSingleton<IRetryPolicyProvider, RetryPolicyProvider>();
-        services.AddSingleton<IMessageSplitter, MessageSplitter>();
-        services.AddSingleton<IHtmlMessageProcessor, HtmlMessageProcessor>();
+        public static IServiceCollection RegisterService(this IServiceCollection services, IConfiguration configuration)
+        {
+            // Register required dependencies
+            _ = services.AddSingleton<ITelegramBotClientWrapper, TelegramBotClientWrapper>();
+            _ = services.AddSingleton<IRetryPolicyProvider, DefaultRetryPolicyProvider>();
+            _ = services.AddSingleton<IMessageSplitter, PlainTextMessageSplitter>();
+            _ = services.AddSingleton<IHtmlMessageProcessor, HtmlMessageProcessor>();
 
-        // Register the TelegramSender extension
-        services.AddTelegramSender(Configuration);
-    }
+            // Register the TelegramSender extension
+            _ = services.AddTelegramSender(configuration);
+            return services;
+        }
 }
 ```
 
