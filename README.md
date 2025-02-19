@@ -47,6 +47,7 @@ TelegramSender uses a Telegram section in your appsettings.json for configuratio
       "error": "[ERROR] {0}"
     },
     "MaxMessageLength": 4096,
+    "MaxRetryAttempts": 3,
     "BotToken": "your_bot_token"
   }
 }
