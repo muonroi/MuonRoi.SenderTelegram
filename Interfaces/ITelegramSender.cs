@@ -48,4 +48,8 @@ public interface ITelegramSender
         string formatType = "default",
         ReplyMarkup? replyMarkup = null,
         CancellationToken cancellationToken = default);
+
+    void RegisterCallbackHandlers(string commandPrefix, Func<CallbackQuery, Task> handler);
+
+    Task HandleCallbackQueryAsync(CallbackQuery callbackQuery);
 }
