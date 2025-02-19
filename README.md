@@ -23,7 +23,7 @@ TelegramSender is an open-source .NET extension that provides services for sendi
   - Supports scheduling messages to be sent after a specified delay.
 
 - **Dependency Injection**
-  - Easily integrates with .NET’s DI container using the provided `AddTelegramSender` extension method.
+  - Easily integrates with .NETâ€™s DI container using the provided `AddTelegramSender` extension method.
 
 ## Installation
 
@@ -46,7 +46,8 @@ TelegramSender uses a Telegram section in your appsettings.json for configuratio
       "default": "{0}",
       "error": "[ERROR] {0}"
     },
-    "MaxMessageLength": 4096
+    "MaxMessageLength": 4096,
+    "BotToken": "your_bot_token"
   }
 }
 ```
