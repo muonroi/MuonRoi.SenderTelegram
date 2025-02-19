@@ -145,7 +145,6 @@ For sending media (documents, photos, videos) or message groups (albums), refer 
 
 - **Message Editing**: Use the provided method to edit a previously sent message.
 - **Scheduled Messaging**: Use the scheduling feature to delay message delivery based on your application's needs.
-- 
 (For specific code samples on editing or scheduling, check the detailed API documentation.)
 
 ## Callback Handling
