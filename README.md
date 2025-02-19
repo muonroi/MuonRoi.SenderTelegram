@@ -81,7 +81,7 @@ TelegramSender uses a Telegram section in your appsettings.json for configuratio
 - **BotToken**: Telegram Bot API token.
 - **ChannelId**: Default channel for messages.
 - **ErrorChannelId**: Channel for error notifications.
-- **Formats: Message** templates for different formatting (default, error).
+- **Formats: Message**templates for different formatting (default, error).
 - **MaxMessageLength**: Maximum allowed message length.
 - **MaxRetryAttempts**: Maximum number of retry attempts when sending messages.
 
@@ -145,13 +145,14 @@ For sending media (documents, photos, videos) or message groups (albums), refer 
 
 - **Message Editing**: Use the provided method to edit a previously sent message.
 - **Scheduled Messaging**: Use the scheduling feature to delay message delivery based on your application's needs.
+
 (For specific code samples on editing or scheduling, check the detailed API documentation.)
 
 ## Callback Handling
 
 TelegramSender supports callback queries for interactive buttons.
 
-** Register a Custom Callback Handler **
+**Register a Custom Callback Handler**
 
 Register a custom callback handler in your DI container:
 
@@ -183,7 +184,7 @@ builder.Services.AddTelegramSender(builder.Configuration, telegramSender =>
 
 ```
 
-** Sending Messages with Callback Button **
+**Sending Messages with Callback Button**
 
 When sending messages, include buttons with callback data:
 
@@ -199,11 +200,11 @@ public async Task SendCustomerInfoAsync(Customer customer)
 }
 ```
 
-** Handling Telegram Updates **
+**Handling Telegram Updates**
 
 Create a service to process Telegram updates, including callback queries and messages.
 
-** TelegramUpdateHandler.cs **
+**TelegramUpdateHandler.cs**
 ```csharp
 using MuonRoi.SenderTelegram.Services;
 using Microsoft.Extensions.Logging;
@@ -252,7 +253,7 @@ public class TelegramUpdateHandler
 
 ```
 
-** Registering the Update Handler **
+**Registering the Update Handler**
 
 Register the TelegramUpdateHandler in your DI container:
 
@@ -266,7 +267,7 @@ public class Startup
 }
 ```
 
-** Processing Incoming Updates **
+**Processing Incoming Updates**
 
 In your webhook or polling loop, process the updates as follows:
 
@@ -290,7 +291,7 @@ public class TelegramBot
 }
 ```
 
-** Setting the Telegram Webhook **
+**Setting the Telegram Webhook**
 
 Run this command to set your bot’s webhook:
 
