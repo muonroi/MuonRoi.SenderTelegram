@@ -1,4 +1,6 @@
-﻿namespace MuonRoi.SenderTelegram.Services;
+﻿
+
+namespace MuonRoi.SenderTelegram.Services;
 public class TelegramBotClientWrapper(TelegramBotClient client) : ITelegramBotClientWrapper
 {
     public Task SendMessageAsync(string chatId, string text, ParseMode parseMode, ReplyMarkup? replyMarkup, CancellationToken cancellationToken)
@@ -34,6 +36,7 @@ public class TelegramBotClientWrapper(TelegramBotClient client) : ITelegramBotCl
     {
         return client.SetWebhook(url, cancellationToken: cancellationToken);
     }
+
     public void StartReceiving(
     Func<ITelegramBotClient, Update, CancellationToken, Task> updateHandler,
     Func<ITelegramBotClient, Exception, CancellationToken, Task> pollingErrorHandler,

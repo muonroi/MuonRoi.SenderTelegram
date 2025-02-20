@@ -1,5 +1,11 @@
 ﻿
 
+
+
+
+
+
+
 namespace MuonRoi.SenderTelegram.Interfaces;
 public interface ITelegramBotClientWrapper
 {

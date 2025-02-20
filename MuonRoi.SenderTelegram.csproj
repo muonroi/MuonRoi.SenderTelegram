@@ -20,11 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\MuonroiBuildingBlock\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Include="..\MuonroiBuildingBlock\README.md">
+    <None Include="..\MuonRoi.SenderTelegram\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
