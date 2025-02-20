@@ -3,7 +3,7 @@
 TelegramSender is an open-source .NET extension that provides services for sending text messages, documents, photos, videos, and other media types to Telegram via a Telegram Bot Client. It supports HTML formatting, automatic message splitting, media groups, message editing, retry logic, scheduled messaging, dependency injection, and callback handling.
 
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/muonroi/MuonRoi.SenderTelegram/ci.yml?branch=master)](https://github.com/muonroi/MuonRoi.SenderTelegram/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/muonroi/MuonRoi.SenderTelegram/dotnet.yml?branch=master)](https://github.com/muonroi/MuonRoi.SenderTelegram/actions)
 [![NuGet](https://img.shields.io/nuget/v/MuonRoi.SenderTelegram)](https://www.nuget.org/packages/MuonRoi.SenderTelegram)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/muonroi/MuonRoi.SenderTelegram/blob/master/LICENSE.txt)
 
