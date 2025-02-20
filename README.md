@@ -391,10 +391,10 @@ public class WebhookConfigurator
 
 Contributions are welcome! Follow these steps:
 
-1. **Fork the Repository**: Create your own fork of the project on GitHub.
-2. **Create a New Branch**: Make your changes in a separate branch.
-3. **Submit a Pull Request**: Open a pull request with a clear description of your changes.
-4. **Follow Coding Guidelines**: Ensure your changes adhere to the project's coding standards and include unit tests where applicable.
+    1. Fork the Repository: Create your own fork of the project on GitHub.
+    2. Create a New Branch: Make your changes in a separate branch.
+    3. Submit a Pull Request: Open a pull request with a clear description of your changes.
+    4. Follow Coding Guidelines: Ensure your changes adhere to the project's coding standards and include unit tests where applicable.
 
 If you encounter any issues or have suggestions for improvements, please open an issue on the GitHub repository.
 
