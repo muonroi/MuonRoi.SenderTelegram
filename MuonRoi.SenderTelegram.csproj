@@ -14,9 +14,10 @@
     <PackageReleaseNotes>MuonRoi.SenderTelegram .NET Extension** is an open-source library for .NET developers that simplifies the process of sending messages and media to Telegram using a Telegram Bot. It abstracts the complexity of interacting with the Telegram Bot API by providing built-in features
 </PackageReleaseNotes>
      <PackAsTool>False</PackAsTool>
-    <AssemblyVersion>1.0.6.1</AssemblyVersion>
-    <Version>1.0.6.1</Version>
-    <FileVersion>1.0.6.1</FileVersion>
+    <AssemblyVersion>1.0.6.2</AssemblyVersion>
+    <Version>1.0.6.2</Version>
+    <FileVersion>1.0.6.2</FileVersion>
+    <RepositoryUrl>https://github.com/muonroi/MuonRoi.SenderTelegram</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

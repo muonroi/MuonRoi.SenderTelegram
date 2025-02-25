@@ -12,18 +12,26 @@ TelegramSender is an open-source .NET extension that provides services for sendi
 ## Table of Contents
 
 1. [Features](#features)
-2. [Installation](#installation)
-3. [Configuration](#configuration)
-4. [Usage](#usage)
+2. [Installation (Requires .NET 6+)](#installation)
+3. [Setting Up Your Telegram Bot](#setting-up-your-telegram-bot)
+4. [Configuration](#configuration)
+5. [Usage](#usage)
    - [Registering the Service](#registering-the-service)
    - [Sending Messages and Media](#sending-messages-and-media)
+     - [Send a Text Message](#send-a-text-message)
+     - [Send an Image](#send-an-image)
+     - [Send a Video](#send-a-video)
    - [Message Editing and Scheduled Messaging](#message-editing-and-scheduled-messaging)
    - [Callback Handling](#callback-handling)
-5. [Handling Telegram Updates](#handling-telegram-updates)
-6. [Contributing](#contributing)
-7. [Author](#author)
-8. [Contact](#contact)
-9. [License](#license)
+6. [Handling Telegram Updates](#handling-telegram-updates)
+   - [Polling](#using-polling-to-receive-updates)
+   - [Webhook](#using-webhook-to-receive-updates)
+7. [Troubleshooting (Common Issues)](#troubleshooting-common-issues)
+8. [Contributing](#contributing)
+9. [Author](#author)
+10. [Contact](#contact)
+11. [License](#license)
+
 
 ---
 
@@ -62,6 +70,42 @@ Install the package via the NuGet Package Manager:
 ```bash
 dotnet add package MuonRoi.SenderTelegram
 ```
+
+## Setting Up Your Telegram Bot
+
+Before using this library, you need to create a **Telegram Bot** and obtain its API token.
+
+### **Step 1: Register a New Bot**
+1. Open Telegram and search for `@BotFather`.
+2. Start a chat and send the command: /newbot
+3. Follow the instructions and choose:
+- A **name** for your bot (e.g., `MyNotificationBot`).
+- A **username** (must end with `bot`, e.g., `MyNotifBot`).
+
+4. After setup, **BotFather** will provide you a token like: 123456789:ABCdefGhIJKlmnopQRstUVWXyz
+
+**Save this token**, as it is required for configuration.
+
+---
+
+### **Step 2: Get the Chat ID of Your Channel/Group**
+If you want to send messages to a **group or channel**, follow these steps:
+
+#### ✅ **Option 1: Using [IDBot](https://t.me/myidbot)**
+1. Open Telegram and search for `@myidbot`.
+2. Start a chat and send: /getid 
+3. The bot will reply with your Chat ID.
+
+#### ✅ **Option 2: Using API**
+You can get the Chat ID using Telegram API:
+```bash
+curl -X GET "https://api.telegram.org/bot<your_bot_token>/getUpdates"
+```
+
+Find the "chat":{"id": value in the response.
+
+Now, you are ready to configure the bot in your application.
+
 
 ## Configuration
 
@@ -118,30 +162,42 @@ public class Startup
 }
 ```
 
-**Sending Messages and Media**
+## **Sending Messages and Media**
 
-Inject ITelegramSender into your classes (e.g., services or controllers) to send messages:
+Inject `ITelegramSender` into your classes (e.g., services or controllers) to send messages:
 
+### **Send a Simple Text Message**
 ```csharp
-public class NotificationService
+public async Task SendTextMessageAsync()
 {
-    private readonly ITelegramSender _telegramSender;
-
-    public NotificationService(ITelegramSender telegramSender)
+    bool success = await _telegramSender.SendMessageAsync("Hello, this is a test message!");
+    if (!success)
     {
-        _telegramSender = telegramSender;
-    }
-
-    public async Task SendAlertAsync(string message)
-    {
-        bool success = await _telegramSender.SendMessageAsync(message);
-        if (!success)
-        {
-            // Handle failure (e.g., log the error or retry)
-        }
+        Console.WriteLine("Failed to send message.");
     }
 }
 
+```
+
+## Send an Image
+
+```csharp
+public async Task SendPhotoAsync()
+{
+    string photoUrl = "https://example.com/sample-image.jpg";
+    await _telegramSender.SendPhotoAsync(photoUrl, "Here is an image!");
+}
+
+```
+
+## Send a Video
+
+```csharp
+public async Task SendVideoAsync()
+{
+    string videoUrl = "https://example.com/sample-video.mp4";
+    await _telegramSender.SendVideoAsync(videoUrl, "Check out this video!");
+}
 ```
 
 For sending media (documents, photos, videos) or message groups (albums), refer to the package documentation for the appropriate methods and parameters.
@@ -153,120 +209,137 @@ For sending media (documents, photos, videos) or message groups (albums), refer 
 
 (For specific code samples on editing or scheduling, check the detailed API documentation.)
 
-## Callback Handling with Polling and Webhook
+## Handling Telegram Updates (Polling vs. Webhook)
 
-TelegramSender supports dynamic callback handling using custom callback handlers. You can register these callbacks during DI registration. Below are detailed examples for both polling and webhook methods.
+When working with Telegram bots, you have **two ways** to receive updates:
 
-1. **Registering a Custom Callback Handler**
+1. **Polling (Long Polling)** – The bot keeps checking Telegram for updates.
+   - ✅ **Easy to set up** (good for local testing).
+   - ❌ **Consumes more server resources**.
+   - ❌ May miss updates if the server is down.
 
-When configuring the TelegramSender extension in your DI container, you can register a callback handler that processes any callback data that starts with a specific prefix (for example, "view_customer_"):
+2. **Webhook** – Telegram **pushes updates** to your server.
+   - ✅ **Efficient**, only sends data when needed.
+   - ✅ **More reliable** in production.
+   - ❌ Requires **public HTTPS server**.
+
+### **Which One Should You Use?**
+- **Use Polling** for local development or small bots.  
+- **Use Webhook** for production applications.  
+
+## Using Polling to Receive Updates
+
+If you do not have a public HTTPS server, you can use **Polling**.
+
+### **Step 1: Register the Required Services**
+
+In `Program.cs`, register the services:
 
 ```csharp
-builder.Services.AddTelegramSender(builder.Configuration, telegramSender =>
-{
-    telegramSender.RegisterCallbackHandlers("view_customer_", async callbackQuery =>
-    {
-        string customerIdStr = callbackQuery.Data.Replace("view_customer_", "");
+var builder = WebApplication.CreateBuilder(args);
 
-        if (Guid.TryParse(customerIdStr, out Guid customerId))
-        {
-            using var httpClient = new HttpClient();
-            string apiUrl = $"https://your-api.com/api/customer/{customerId}";
-            HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+// Add Telegram services
+builder.Services.AddTelegramSender(builder.Configuration);
 
-            if (response.IsSuccessStatusCode)
-            {
-                var customer = JsonConvert.DeserializeObject<CustomerResponseModel>(await response.Content.ReadAsStringAsync());
-                string message = $"📋 *Customer Info:* {customer.CustomerName}, {customer.Phone}";
-
-                await telegramSender.SendMessageAsync(message, callbackQuery.Message.Chat.Id.ToString());
-            }
-        }
-    });
-
-    Console.WriteLine("✅ Telegram Callback Handlers Registered");
-});
-```
-
-The callback handler above processes any callback query whose data begins with "view_customer_" and retrieves customer details accordingly.
-
-2. **Using Callback Handling with Polling**
-
-When using polling to receive updates, you must call StartReceiving. In this scenario, any received callback query will be handled by the registered callback handler.
-
-**Example in Program.cs using polling**
-
-```cshrap
-builder.Services.AddSingleton<ITelegramBotClientWrapper, TelegramBotClientWrapper>();
-builder.Services.AddSingleton<IRetryPolicyProvider, DefaultRetryPolicyProvider>();
-builder.Services.AddSingleton<IMessageSplitter, PlainTextMessageSplitter>();
-builder.Services.AddSingleton<IHtmlMessageProcessor, HtmlMessageProcessor>();
-
-
-builder.Services.AddTelegramSender(builder.Configuration, telegramSender =>
-{
-    telegramSender.RegisterCallbackHandlers("view_customer_", async callbackQuery =>
-    {
-        Console.WriteLine("Callback received: " + callbackQuery.Data);
-        // Custom logic to handle the callback goes here.
-        await Task.CompletedTask;
-    });
-});
-
-
+// Register the Update Handler
 builder.Services.AddSingleton<TelegramUpdateHandler>();
 
-----start app----
+var app = builder.Build();
+```
 
+### **Step 2: Start Polling**
+
+In Program.cs, before app.Run();, add:
+
+```csharp   
 var botClientWrapper = app.Services.GetRequiredService<ITelegramBotClientWrapper>();
 
-// Create ReceiverOptions (customize as needed)
 var receiverOptions = new ReceiverOptions
 {
-    AllowedUpdates = { } // receive all update types
+    AllowedUpdates = new[] { UpdateType.Message, UpdateType.CallbackQuery }
 };
 
-// Create a cancellation token source.
+// Start polling
 var cancellationTokenSource = new CancellationTokenSource();
 
-// Start polling to receive updates.
 botClientWrapper.StartReceiving(
-    updateHandler: async (bot, update, token) =>
+    async (botClient, update, cancellationToken) =>
     {
-        // Retrieve the TelegramUpdateHandler from DI.
         var updateHandler = app.Services.GetRequiredService<TelegramUpdateHandler>();
         await updateHandler.HandleUpdateAsync(update);
     },
-    pollingErrorHandler: async (bot, exception, token) =>
+    async (botClient, exception, cancellationToken) =>
     {
-        // Handle errors (for example, log them).
-        Console.WriteLine($"Error: {exception.Message}");
-        await Task.CompletedTask;
+        Console.WriteLine($"Polling error: {exception.Message}");
     },
-    receiverOptions: receiverOptions,
-    cancellationToken: cancellationTokenSource.Token
+    receiverOptions,
+    cancellationTokenSource.Token
 );
 
 app.Lifetime.ApplicationStopping.Register(() =>
 {
-    // Cancel polling gracefully when the application stops.
     cancellationTokenSource.Cancel();
 });
 
+app.Run();
+
 ```
 
-In this polling example, after starting StartReceiving, any callback query (as well as standard messages) is passed to the TelegramUpdateHandler, which then calls the registered callback handler if the callback data matches.
+### **Step 3: Verify Polling is Working**
+
+Run your application and check if logs appear:
+
+```bash 
+dotnet run
+```
+
+Expected output:
+
+```csharp 
+
+[INFO] Bot started polling for updates...
+[INFO] Received message from user: "Hello Bot!"
+
+```
 
 
-3. **Using Callback Handling with Webhook**
+## Using Webhook to Receive Updates
 
-When using webhooks, Telegram sends update payloads directly to your designated HTTPS endpoint. The registered callback handler works the same way once the update is received.
+Webhook is recommended for production as it allows Telegram to **push updates** to your server, reducing unnecessary requests.
 
-**Example Webhook Controller**
+### **Step 1: Set up Webhook in Telegram**
+Run this command in your terminal to set up your webhook:
+```bash
+curl -X POST "https://api.telegram.org/bot<your_bot_token>/setWebhook?url=https://yourdomain.com/api/telegram/update"
+
+```
+
+### **Step 2: Register Webhook in .NET**
+In Program.cs, register the necessary services:
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+// Register Telegram services
+builder.Services.AddTelegramSender(builder.Configuration);
+builder.Services.AddSingleton<TelegramUpdateHandler>();
+
+// Add controllers to handle webhook updates
+builder.Services.AddControllers();
+
+var app = builder.Build();
+app.MapControllers();
+app.Run();
+
+
+```
+
+### **Step 3: Create Webhook Controller**
+
+Create a new file TelegramWebhookController.cs:
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
 [ApiController]
@@ -281,13 +354,10 @@ public class TelegramWebhookController : ControllerBase
     }
 
     [HttpPost("update")]
-    public async Task<IActionResult> Update([FromBody] Update update)
+    public async Task<IActionResult> ReceiveUpdate([FromBody] Update update)
     {
-        if (update == null)
-        {
-            return BadRequest();
-        }
-
+        if (update == null) return BadRequest();
+        
         await _updateHandler.HandleUpdateAsync(update);
         return Ok();
     }
@@ -295,97 +365,37 @@ public class TelegramWebhookController : ControllerBase
 
 ```
 
-**Setting Up Webhook in Program.cs**
+### **Step 4: Verify Webhook is Working**
 
-In this case, you don't need to call StartReceiving. Instead, ensure that your webhook is properly configured so that Telegram pushes updates to your endpoint.
+Run your app and test webhook setup:
 
-```csharp
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using System.Threading.Tasks;
-using Telegram.Bot;
-
-public class Program
-{
-    public static async Task Main(string[] args)
-    {
-        var host = CreateHostBuilder(args).Build();
-
-        // Retrieve configuration and set the webhook on startup.
-        var configuration = host.Services.GetRequiredService<IConfiguration>();
-        string botToken = configuration["Telegram:BotToken"];
-        string webhookUrl = "https://yourdomain.com/api/telegram/update";
-
-        var webhookConfigurator = new WebhookConfigurator(webhookUrl);
-        await webhookConfigurator.ConfigureWebhookAsync();
-
-        // Run the host to start listening for webhook requests.
-        await host.RunAsync();
-    }
-
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureAppConfiguration((hostingContext, config) =>
-            {
-                config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-            })
-            .ConfigureServices((context, services) =>
-            {
-                // Register required dependencies for TelegramSender.
-                services.AddSingleton<ITelegramBotClientWrapper, TelegramBotClientWrapper>();
-                services.AddSingleton<IRetryPolicyProvider, DefaultRetryPolicyProvider>();
-                services.AddSingleton<IMessageSplitter, PlainTextMessageSplitter>();
-                services.AddSingleton<IHtmlMessageProcessor, HtmlMessageProcessor>();
-
-                // Register TelegramSender with callback webhook.
-                services.AddTelegramSender(context.Configuration, telegramSender =>
-                {
-                    telegramSender.RegisterCallbackHandlers("view_customer_", async callbackQuery =>
-                    {
-                        Console.WriteLine("Callback received via webhook: " + callbackQuery.Data);
-                        await Task.CompletedTask;
-                    });
-                });
-
-                // Register the update handler for processing messages and callbacks.
-                services.AddSingleton<TelegramUpdateHandler>();
-
-                // Add controllers to support webhook endpoints.
-                services.AddControllers();
-            });
-}
-
+```bash
+curl -X GET "https://api.telegram.org/bot<your_bot_token>/getWebhookInfo"
 ```
 
-**Config Webhook Configurator**
+Expected output:
 
-```csharp
-using Telegram.Bot;
-
-public class WebhookConfigurator
+```json
 {
-    private readonly string _webhookUrl;
-    private readonly ITelegramBotClientWrapper _botClient
-    public WebhookConfigurator(string botToken, string webhookUrl, ITelegramBotClientWrapper botClient)
-    {
-        _webhookUrl = webhookUrl;
-        _botClient = botClient;
-    }
-
-    public async Task ConfigureWebhookAsync()
-    {
-        await _botClient.SetWebhookAsync(_webhookUrl);
-    }
+  "ok": true,
+  "result": {
+    "url": "https://yourdomain.com/api/telegram/update",
+    "pending_update_count": 0
+  }
 }
-
 ```
 
-**In the webhook setup**
+## Polling vs. Webhook: Which One to Use?
 
-    - WebhookConfigurator is used to call SetWebhookAsync and configure Telegram to send updates to your endpoint.
-    - No polling method (such as StartReceiving) is needed because Telegram pushes the updates.
-    - The registered callback handler will still be invoked via the TelegramUpdateHandler once an update is received at the webhook endpoint.
+| Feature            | Polling                               | Webhook                                |
+|--------------------|--------------------------------------|----------------------------------------|
+| **Setup Complexity**  | Easy, works locally                 | Requires HTTPS and public server      |
+| **Resource Usage** | High (constant API calls)          | Low (event-driven updates)            |
+| **Reliability**    | Can miss updates if not handled properly | More reliable if webhook is set up correctly |
+| **Best For**      | Local testing, small bots           | Production, high-scale applications   |
+
+**Recommendation**: Use **Polling** for testing/development and **Webhook** for production.
+
 
 ## Contributing
 
