@@ -21,4 +21,5 @@ public interface ITelegramBotClientWrapper
     Func<ITelegramBotClient, Exception, CancellationToken, Task> pollingErrorHandler,
     ReceiverOptions receiverOptions,
     CancellationToken cancellationToken);
+    void OnMessage(Func<ITelegramBotClient, Message, UpdateType, CancellationToken, Task> messageHandler, CancellationToken cancellationToken);
 }

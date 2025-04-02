@@ -152,7 +152,10 @@ public partial class TelegramSender : ITelegramSender
     /// <param name="callbackQuery">The callback query received from Telegram.</param>
     public async Task HandleCallbackQueryAsync(TelegramCallbackQuery callbackQuery)
     {
-        if (callbackQuery.Data is null) return;
+        if (callbackQuery.Data is null)
+        {
+            return;
+        }
 
         foreach (KeyValuePair<string, Func<TelegramCallbackQuery, Task>> entry in callbackHandlers)
         {

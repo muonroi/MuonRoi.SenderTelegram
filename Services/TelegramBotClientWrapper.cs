@@ -45,4 +45,12 @@ public class TelegramBotClientWrapper(TelegramBotClient client) : ITelegramBotCl
     {
         client.StartReceiving(updateHandler, pollingErrorHandler, receiverOptions, cancellationToken);
     }
+
+    public void OnMessage(Func<ITelegramBotClient, Message, UpdateType, CancellationToken, Task> messageHandler, CancellationToken cancellationToken)
+    {
+        client.OnMessage += async (sender, args) =>
+        {
+            await messageHandler(client, sender, args, cancellationToken);
+        };
+    }
 }
